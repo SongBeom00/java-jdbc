@@ -41,10 +41,9 @@ public class MemberServiceV2 {
     private void bizLogic(Connection con, String fromId, String toId, int money) throws SQLException {
         Member fromMember = memberRepository.findById(con, fromId);
         Member toMember = memberRepository.findById(con, toId);
-
-        memberRepository.update(fromId, fromMember.getMoney() - money);
+        memberRepository.update(con,fromId, fromMember.getMoney() - money);
         validation(toMember);
-        memberRepository.update(toId,toMember.getMoney() + money);
+        memberRepository.update(con,toId,toMember.getMoney() + money);
     }
 
     private static void release(Connection con) {
