@@ -3,10 +3,12 @@ package hello.jdbc.service;
 import hello.jdbc.domain.Member;
 import hello.jdbc.repository.MemberRepositoryV3;
 import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -42,7 +44,7 @@ class MemberServiceV3_3Test {
     @TestConfiguration
     static class TestConfig{
         @Bean
-        DataSource dataSource(){
+        DataSource dataSource(){ // 스프링 부트는 자동으로 등록해주지만, 스프링은 직접 등록해야합니다.
             return new DriverManagerDataSource(URL, USERNAME, PASSWORD);
         }
 
@@ -68,6 +70,15 @@ class MemberServiceV3_3Test {
         memberRepository.delete(MEMBER_A);
         memberRepository.delete(MEMBER_B);
         memberRepository.delete(MEMBER_EX);
+    }
+
+
+    @Test
+    void AopCheck(){
+        log.info("memberService = {}", memberService.getClass()); //트랜잭션 적용된 프록시 객체 -> 프록시(CGLIB)
+        log.info("memberRepository = {}", memberRepository.getClass());
+        Assertions.assertThat(AopUtils.isAopProxy(memberService)).isTrue();
+        Assertions.assertThat(AopUtils.isAopProxy(memberRepository)).isFalse();
     }
 
     @Test
